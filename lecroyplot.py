@@ -11,6 +11,8 @@ from PyQt5.QtGui import QIcon
 from readTrc import readTrc
 import pprint 
 
+BASE_DIR = r'C:\Users\aspit\National Energy Technology Laboratory\MHD Lab - Documents\Data Share\MHD Lab\HVOF Booth'
+# BASE_DIR = ''
 class FileBrowserWidget(QWidget):
 
     def __init__(self):
@@ -23,7 +25,7 @@ class FileBrowserWidget(QWidget):
         self.tree = QTreeView()
         self.tree.setModel(self.model)
 
-        idx = self.model.index(r'C:\Users\aspit\National Energy Technology Laboratory\MHD Lab - Documents\Data Share\MHD Lab\HVOF Booth')
+        idx = self.model.index(BASE_DIR)
         self.tree.setRootIndex(idx)
         
         self.tree.setAnimated(False)
@@ -31,6 +33,7 @@ class FileBrowserWidget(QWidget):
         self.tree.setSortingEnabled(True)
         
         self.tree.hideColumn(2)
+        self.tree.header().resizeSection(0,200)
         
         windowLayout = QVBoxLayout()
         windowLayout.addWidget(self.tree)
