@@ -4,24 +4,19 @@ import pyqtgraph as pg
 import sys  # We need sys so that we can pass argv to QApplication
 import os
 
-from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout, QSplitter
 from PyQt5.QtGui import QIcon
+
+from readTrc import readTrc
+import pprint 
 
 class FileBrowserWidget(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.title = 'PyQt5 file system view - pythonspot.com'
-        self.left = 10
-        self.top = 10
-        self.width = 640
-        self.height = 480
         self.initUI()
     
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-        
+    def initUI(self):        
         self.model = QFileSystemModel()
         self.model.setRootPath('')
         self.tree = QTreeView()
@@ -34,53 +29,53 @@ class FileBrowserWidget(QWidget):
         self.tree.setIndentation(20)
         self.tree.setSortingEnabled(True)
         
-        self.tree.setWindowTitle("Dir View")
-        self.tree.resize(640, 480)
+        self.tree.hideColumn(2)
         
         windowLayout = QVBoxLayout()
         windowLayout.addWidget(self.tree)
         self.setLayout(windowLayout)
         
-
 class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fbwidget = FileBrowserWidget()
+        self.fbwidget.tree.clicked.connect(self.on_treeView_clicked)
+        self.textbrowser = QtWidgets.QTextBrowser()
+        fb_layout = QtWidgets.QVBoxLayout()
+        fb_layout.addWidget(self.fbwidget)
+        fb_layout.addWidget(self.textbrowser)
+        fb_widget = QtWidgets.QWidget()
+        fb_widget.setLayout(fb_layout)
+
         self.graphWidget = pg.PlotWidget()
-        # self.setCentralWidget(self.graphWidget)
+
+        splitter = QtWidgets.QSplitter()
+        splitter.addWidget(fb_widget)
+        splitter.addWidget(self.graphWidget)
 
         hbox = QtWidgets.QHBoxLayout()
-
-        self.fbwidget = FileBrowserWidget()
-
-        self.fbwidget.tree.clicked.connect(self.on_treeView_clicked)
-
-        hbox.addStretch(1)
-        hbox.addWidget(self.fbwidget)
-        hbox.addWidget(self.graphWidget)
+        hbox.addWidget(splitter)
 
         self.setLayout(hbox)
-
-        hour = [1,2,3,4,5,6,7,8,9,10]
-        temperature = [30,32,34,32,33,31,29,32,35,45]
-
-        self.graphWidget.plot(hour, temperature)
+        self.trc = readTrc.Trc()
     
     def on_treeView_clicked(self, index):
         model = self.fbwidget.model
-
-        # filename =  model.fileName(index)
         filepath = model.filePath(index)
 
         if os.path.splitext(filepath)[1] == '.trc':
-            print(filepath)
+            datX, datY, d = self.trc.open(filepath)
+            self.graphWidget.clear()
+            self.graphWidget.plot(datX, datY)
+            self.textbrowser.setText(pprint.pformat(d, indent=2))
 
 
 class MainWindow(QtWidgets.QMainWindow):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setWindowTitle('Lecroy Viewer')
 
         self.setCentralWidget(MainWidget())
 
