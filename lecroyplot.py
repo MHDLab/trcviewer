@@ -12,7 +12,10 @@ from readTrc import readTrc
 import pprint 
 
 BASE_DIR = r'C:\Users\aspit\National Energy Technology Laboratory\MHD Lab - Documents\Data Share\MHD Lab\HVOF Booth'
-# BASE_DIR = ''
+
+if not os.path.exists(BASE_DIR):
+    print('Could not find default base directory')
+    BASE_DIR = ''
 class FileBrowserWidget(QWidget):
 
     def __init__(self):
