@@ -5,7 +5,7 @@ import sys  # We need sys so that we can pass argv to QApplication
 import os
 import pandas as pd
 
-from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout, QSplitter
+from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout, QSplitter, QMenuBar, QMenu, QAction, QFileDialog
 from PyQt5.QtGui import QIcon
 
 from readTrc import readTrc
@@ -40,8 +40,7 @@ class FileBrowserWidget(QWidget):
         
         windowLayout = QVBoxLayout()
         windowLayout.addWidget(self.tree)
-        self.setLayout(windowLayout)
-        
+        self.setLayout(windowLayout)      
 class Plotter(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
@@ -126,9 +125,30 @@ class MainWidget(QtWidgets.QWidget):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setWindowTitle('Lecroy Viewer')
+        self.setWindowTitle('trc File Viewer')
 
-        self.setCentralWidget(MainWidget())
+        menuBar = QMenuBar(self)
+        self.setMenuBar(menuBar)
+
+        fileMenu = QMenu("&File", self)
+        menuBar.addMenu(fileMenu)
+
+        self.open_base_folderAction = QAction("&Open Base Folder", self)
+        fileMenu.addAction(self.open_base_folderAction)
+
+        self.open_base_folderAction.triggered.connect(self.update_base_folder)
+
+        self.main_widget = MainWidget()
+        self.setCentralWidget(self.main_widget)
+
+    def update_base_folder(self):
+
+        fb = self.main_widget.fbwidget
+
+        folder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+
+        idx = fb.model.index(folder)
+        fb.tree.setRootIndex(idx)
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
