@@ -1,15 +1,15 @@
-from PyQt5 import QtWidgets
+
 from pyqtgraph import PlotWidget, plot
 import pyqtgraph as pg
 import sys  # We need sys so that we can pass argv to QApplication
 import os
 import pandas as pd
 
-from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout, QSplitter, QMenuBar, QMenu, QAction, QFileDialog
-from PyQt5.QtGui import QIcon
+#TODO: Improve imports and make consistent
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout, QSplitter, QMenuBar, QMenu, QAction, QFileDialog, QTableWidget, QTableWidgetItem, QLabel
 
 from readTrc import readTrc
-import pprint 
 
 BASE_DIR = r'C:\Users\aspit\National Energy Technology Laboratory\MHD Lab - Documents\Data Share\MHD Lab\HVOF Booth'
 
@@ -69,6 +69,25 @@ class Plotter(QtWidgets.QWidget):
         
         self.setLayout(vbox)
 
+class TableView(QTableWidget):
+    #https://pythonbasics.org/pyqt-table/
+    def __init__(self, *args):
+        QTableWidget.__init__(self, *args)
+        self.setHorizontalHeaderLabels(['Value'])
+ 
+    def setData(self, data): 
+        self.setRowCount(len(data))
+
+        verHeaders = []
+        for n, key in enumerate(sorted(data.keys())):
+            verHeaders.append(key)
+            newitem = QTableWidgetItem(data[key])
+            self.setItem(n, 0, newitem)
+        self.setVerticalHeaderLabels(verHeaders)
+    
+        self.resizeColumnsToContents()
+        self.resizeRowsToContents()
+
 class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
@@ -76,10 +95,13 @@ class MainWidget(QtWidgets.QWidget):
 
         self.fbwidget = FileBrowserWidget()
         self.fbwidget.tree.clicked.connect(self.on_treeView_clicked)
-        self.textbrowser = QtWidgets.QTextBrowser()
+        self.metadata_browser = TableView(1,1)
+
         fb_layout = QtWidgets.QVBoxLayout()
+        fb_layout.addWidget(QLabel('File Browser'))
         fb_layout.addWidget(self.fbwidget)
-        fb_layout.addWidget(self.textbrowser)
+        fb_layout.addWidget(QLabel('File Metadata'))
+        fb_layout.addWidget(self.metadata_browser)
         fb_widget = QtWidgets.QWidget()
         fb_widget.setLayout(fb_layout)
 
@@ -109,7 +131,9 @@ class MainWidget(QtWidgets.QWidget):
 
             self.series = pd.Series(datY, index=datX)
 
-            self.textbrowser.setText(pprint.pformat(d, indent=2))
+            d_str = {key: str(d[key]) for key in d.keys()}
+            self.metadata_browser.setData(d_str)
+            self.metadata_browser.show()
             self.update_plot()
 
     def update_plot(self):
