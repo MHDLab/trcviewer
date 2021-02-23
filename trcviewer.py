@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, 
 
 from readTrc import readTrc
 
-BASE_DIR = r'C:\Users\aspit\National Energy Technology Laboratory\MHD Lab - Documents\Data Share\MHD Lab\HVOF Booth'
+BASE_DIR = r'C:\Users\aspit\National Energy Technology Laboratory\MHD Lab - Documents\Data Share\MHD Lab'
 
 if not os.path.exists(BASE_DIR):
     print('Could not find default base directory')
@@ -64,7 +64,11 @@ class Plotter(QtWidgets.QWidget):
 
         vbox.addLayout(controls)
 
+        styles = {'color': '#FFF', 'font-size':'12pt'}
+
         self.graphWidget = pg.PlotWidget()
+        self.graphWidget.setLabel('left', 'Amplitude (V)', **styles)
+        self.graphWidget.setLabel('bottom', 'Time (s)', **styles)
         vbox.addWidget(self.graphWidget)
         
         self.setLayout(vbox)
