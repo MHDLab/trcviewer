@@ -13,6 +13,14 @@ from readTrc import readTrc
 
 BASE_DIR = r'C:\Users\aspit\National Energy Technology Laboratory\MHD Lab - Documents\Data Share\MHD Lab'
 
+#https://stackoverflow.com/questions/47357578/how-do-i-collect-rows-from-qitemselection
+def selected_rows(selection):
+    indexes = []
+    for index in selection.indexes():
+        if index.column() == 0:
+            indexes.append(index)
+    return indexes
+
 if not os.path.exists(BASE_DIR):
     print('Could not find default base directory')
     BASE_DIR = ''
@@ -98,7 +106,7 @@ class MainWidget(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
 
         self.fbwidget = FileBrowserWidget()
-        self.fbwidget.tree.clicked.connect(self.on_treeView_clicked)
+        self.fbwidget.tree.selectionModel().selectionChanged.connect(self.on_treeView_clicked)
         self.metadata_browser = TableView(1,1)
 
         fb_layout = QtWidgets.QVBoxLayout()
@@ -126,7 +134,11 @@ class MainWidget(QtWidgets.QWidget):
         self.plotter.spinBox_smoothamount.valueChanged.connect(self.update_plot)
         self.plotter.radiobutton.clicked.connect(self.update_plot)
     
-    def on_treeView_clicked(self, index):
+    def on_treeView_clicked(self, selected, deselected):
+
+        #See function definition. Selection model is needed to allow for change when navigating by keyboard. 
+        index = selected_rows(selected)[0]
+
         model = self.fbwidget.model
         filepath = model.filePath(index)
 
