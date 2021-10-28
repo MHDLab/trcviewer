@@ -109,16 +109,22 @@ class MainWidget(QtWidgets.QWidget):
         self.fbwidget.tree.selectionModel().selectionChanged.connect(self.on_treeView_clicked)
         self.metadata_browser = TableView(1,1)
 
-        fb_top_layout = QtWidgets.QHBoxLayout()
-        
-        fb_top_layout.addWidget(QLabel('Selected Path'))
+        fullpath_layout = QtWidgets.QHBoxLayout()
+        fullpath_layout.addWidget(QLabel('Selected Path'))
         self.current_selected_path = QtWidgets.QLineEdit()
-        fb_top_layout.addWidget(self.current_selected_path)
+        fullpath_layout.addWidget(self.current_selected_path)
+
+        relpath_layout = QtWidgets.QHBoxLayout()
+        relpath_layout.addWidget(QLabel('Relative Path'))
+        self.current_selected_relpath = QtWidgets.QLineEdit()
+        relpath_layout.addWidget(self.current_selected_relpath)
+
 
 
         fb_layout = QtWidgets.QVBoxLayout()
         fb_layout.addWidget(QLabel('File Browser'))
-        fb_layout.addLayout(fb_top_layout)
+        fb_layout.addLayout(fullpath_layout)
+        fb_layout.addLayout(relpath_layout)
         fb_layout.addWidget(self.fbwidget)
         fb_layout.addWidget(QLabel('File Metadata'))
         fb_layout.addWidget(self.metadata_browser)
@@ -151,6 +157,10 @@ class MainWidget(QtWidgets.QWidget):
         filepath = model.filePath(index)
 
         self.current_selected_path.setText(filepath)
+
+        root_dir = self.fbwidget.model.filePath(self.fbwidget.tree.rootIndex())
+        rel_path = os.path.relpath(filepath, root_dir)
+        self.current_selected_relpath.setText(rel_path)
 
         if os.path.splitext(filepath)[1] == '.trc':
             datX, datY, d = self.trc.open(filepath)
