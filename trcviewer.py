@@ -8,6 +8,7 @@ import pandas as pd
 #TODO: Improve imports and make consistent
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout, QSplitter, QMenuBar, QMenu, QAction, QFileDialog, QTableWidget, QTableWidgetItem, QLabel
+from PyQt5 import QtGui
 
 from readTrc import readTrc
 
@@ -185,6 +186,7 @@ class MainWidget(QtWidgets.QWidget):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setWindowIcon(QtGui.QIcon(r'resources\icon.ico'))
         self.setWindowTitle('trc File Viewer')
 
         menuBar = QMenuBar(self)
