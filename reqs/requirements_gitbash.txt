@@ -1,0 +1,10 @@
+numpy==1.26.4
+pandas==2.2.0
+PyQt5==5.15.10
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.13.0
+pyqtgraph==0.13.3
+python-dateutil==2.8.2
+pytz==2024.1
+six==1.16.0
+tzdata==2023.4
