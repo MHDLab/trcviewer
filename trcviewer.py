@@ -9,6 +9,7 @@ import pandas as pd
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QFileSystemModel, QTreeView, QWidget, QVBoxLayout, QSplitter, QMenuBar, QMenu, QAction, QFileDialog, QTableWidget, QTableWidgetItem, QLabel
 from PyQt5 import QtGui
+from PyQt5.QtWidgets import QMessageBox
 
 from readTrc import readTrc
 
@@ -198,6 +199,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.open_base_folderAction = QAction("&Open Base Folder", self)
         fileMenu.addAction(self.open_base_folderAction)
 
+        # Create a new QAction with the text "Export as CSV".
+        self.export_csv_action = QAction('Export as CSV', self)
+
+        # Connect the triggered signal of the new QAction to a new method `export_as_csv`.
+        self.export_csv_action.triggered.connect(self.export_as_csv)
+
+        # Add the new QAction to the file menu.
+        fileMenu.addAction(self.export_csv_action)
+
         self.open_base_folderAction.triggered.connect(self.update_base_folder)
 
         self.main_widget = MainWidget()
@@ -211,6 +221,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
         idx = fb.model.index(folder)
         fb.tree.setRootIndex(idx)
+
+    def export_as_csv(self):
+        if self.main_widget.series is not None:
+            filename, _ = QFileDialog.getSaveFileName(self, 'Save File', '', 'CSV(*.csv)')
+            if filename:
+                s = self.main_widget.series
+                s.index.name = 'time' 
+                s.name = 'amplitude (V)'
+                
+                s.to_csv(filename)
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Error")
+            msg.setInformativeText('No series to export, have a selected trc file.')
+            msg.setWindowTitle("Error")
+            msg.exec_()            
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
